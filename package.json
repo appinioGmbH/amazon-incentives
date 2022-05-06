@@ -1,0 +1,30 @@
+{
+  "name": "amazon-incentives",
+  "version": "1.0.0",
+  "description": "Amazon Incentives API integration with Node.js",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm i",
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/appinioGmbH/amazon-incentives.git"
+  },
+  "keywords": [
+    "amazon"
+  ],
+  "author": "Basim Hennawi <basim.hennawi@appinio.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/appinioGmbH/amazon-incentives/issues"
+  },
+  "homepage": "https://github.com/appinioGmbH/amazon-incentives#readme",
+  "dependencies": {
+    "crypto-js": "4.1.1",
+    "nanoid": "3.3.4",
+    "request": "2.88.2",
+    "xml-js": "1.6.11"
+  }
+}
