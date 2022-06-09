@@ -15,6 +15,14 @@ const REGION = 'eu-west-1';
 const SERVICE_NAME = 'AGCODService';
 const OPERATION_NAME = 'CreateGiftCard';
 
+const getSignatureKey = (key, dateStamp, regionName, serviceName) => {
+  const kDate = crypto.HmacSHA256(dateStamp, "AWS4" + key);
+  const kRegion = crypto.HmacSHA256(regionName, kDate);
+  const kService = crypto.HmacSHA256(serviceName, kRegion);
+  const kSigning = crypto.HmacSHA256("aws4_request", kService);
+  return kSigning;
+}
+
 /**
  * Returns payload in XML format.
  *
@@ -61,7 +69,11 @@ const signRequest = (accessKey, secretKey, regionName, serviceName, operation, p
   const payloadHash = crypto.SHA256(payload);
   const canonicalRequest  = `POST\n/${operation}\n${canonicalQuerystring}\n${canonicalHeaders}\n${signedHeaders}\n${payloadHash}`;
   const stringToSign = `${algorithm}\n${amzDate}\n${credentialScope}\n${crypto.SHA256(canonicalRequest).toString()}`;
-  const signingKey = crypto.HmacSHA256(`${amzDate}/${regionName}/${serviceName}/aws4_request`, crypto.HmacSHA256(`${dateStamp}/${regionName}/${serviceName}/aws4_request`, crypto.HmacSHA256(`${dateStamp}/${regionName}/${serviceName}/aws4_request`, crypto.HmacSHA256(`${dateStamp}/${regionName}/${serviceName}/aws4_request`, crypto.HmacSHA256(`${dateStamp}/${regionName}/${serviceName}/aws4_request`, secretKey, 'utf8'), 'utf8'), 'utf8'), 'utf8'), 'utf8');
+
+  console.log('dateStamp', dateStamp);
+  const signingKey = getSignatureKey(secretKey, dateStamp, REGION, SERVICE_NAME);
+  // const signingKey = crypto.HmacSHA256(`${amzDate}/${regionName}/${serviceName}/aws4_request`, crypto.HmacSHA256(`${dateStamp}/${regionName}/${serviceName}/aws4_request`, crypto.HmacSHA256(`${dateStamp}/${regionName}/${serviceName}/aws4_request`, crypto.HmacSHA256(`${dateStamp}/${regionName}/${serviceName}/aws4_request`, crypto.HmacSHA256(`${dateStamp}/${regionName}/${serviceName}/aws4_request`, secretKey, 'utf8'), 'utf8'), 'utf8'), 'utf8'), 'utf8');
+  // console.log('signingKey', signingKey);
   const signature = crypto.HmacSHA256(stringToSign, signingKey, 'hex');
   authorization = `${algorithm} Credential=${accessKey}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`;
 
@@ -107,6 +119,7 @@ const createGiftCard = (payload, signature) => {
     const auth = await signRequest(accessKey, secretKey, REGION, SERVICE_NAME, OPERATION_NAME, payload);
     const result = await createGiftCard(payload, auth);
 
+    // console.log('result', result);
     console.log('result', result);
   } catch (error) {
     console.log(error);
